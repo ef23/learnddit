@@ -130,7 +130,7 @@ class Home extends Component {
 									{(
 										data.slice(this.props.history.start_index, this.state.numShowing).map((comment, i) => {
 											console.log("rendering results")
-										return <Result key={comment[0].id} comment={comment} style={i % 2 === 0 ? "white" : "whitesmoke"}/>})
+										return <Result key={comment[0].id} comment={comment} style={i % 2 === 0 ? "white" : "whitesmoke"} key_words={this.state.tokens}/> })
 									)}
 									{ !data.length ? null : 
 										<div id="pagination-div">

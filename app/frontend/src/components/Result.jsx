@@ -5,6 +5,7 @@ import { nsfwWords } from '../constants/constants.js'
 
 import Linkify from './Linkify.jsx'
 
+
 class Result extends Component {
 
   constructor(props){
@@ -18,7 +19,6 @@ class Result extends Component {
     this.showScore = this.showScore.bind(this);
     this.roundNearest = this.roundNearest.bind(this);
     this.checkExplicit = this.checkExplicit.bind(this);
-
     this.explicit = this.checkExplicit(this.props.comment[0].body)
   }
 
@@ -49,6 +49,7 @@ class Result extends Component {
     return false;
   }
 
+
   render() {
     let breakdownLabel = ["Cos-sim score:", " x # of noun terms:", ' x √(comment score):']
     let colors = ["blue", "green", "red"]
@@ -64,11 +65,15 @@ class Result extends Component {
       </div>) :
       (!this.state.expanded ?
         (<div className="comment-body">
-            <Linkify properties={{target: '_blank', style: {fontWeight: 'bold'}}} text={comment.summary} />
+          <Linkify properties={{target: '_blank', style: {fontWeight: 'bold'}}} key_words={this.props.key_words}>
+            {comment.summary}
+          </ Linkify>
             <button onClick={() => this.setState({expanded: true})}>read more</button>
          </div>) :
         (<div className="comment-body">
-          <Linkify properties={{target: '_blank', style: {fontWeight: 'bold'}}} text={comment.body} />
+          <Linkify properties={{target: '_blank', style: {fontWeight: 'bold'}}} key_words={this.props.key_words}>
+            {comment.body}
+          </ Linkify>
           <button onClick={() => this.setState({expanded: false})}>read less</button>
         </div>)
       )

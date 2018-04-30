@@ -206,7 +206,7 @@ def index_search(query_tokens, orig_tokens, index, idf, doc_norms, start_index=0
     [val * idf[token] for (token, val) in counts.items() if token in idf])
 
   for (token, query_count) in counts.items():
-    if token in idf and token in index:
+    if token in idf and token in index and token in word_weights:
       for (doc_id, doc_count) in index[token].items():
         scores[doc_id] += doc_count * \
           (idf[token] ** 2) * query_count * word_weights[token]**2 / \
