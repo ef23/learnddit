@@ -24,10 +24,6 @@ class Linkify extends Component {
 
     const matches = defaultMatchDecorator(string);
     if (!matches) {
-      // console.log('finding chunks now');
-      console.log(string);
-      // console.dir(defaultFindChunks);
-      console.dir(this.props.key_words)
       return (<Highlighter 
         searchWords={this.props.key_words}
         autoEscape={true}
@@ -71,8 +67,48 @@ class Linkify extends Component {
 
     return children;
   }
-
-
+  defaultFindChunks({
+    autoEscape,
+    caseSensitive,
+    sanitize,
+    searchWords,
+    textToHighlight
+  }
+  ) {
+    return searchWords
+      .reduce((chunks, searchWord) => {
+        // searchWord = sanitize(searchWord);
+  
+        if (autoEscape) {
+          searchWord = searchWord.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
+        }
+  
+        const regex = new RegExp('\\b' + searchWord + '\\b', caseSensitive ? 'g' : 'gi');
+        console.dir(regex);
+        console.log(regex);
+        let match;
+        while ((match = regex.exec(textToHighlight))) {
+          let start = match.index
+          let end = regex.lastIndex
+          // We do not return zero-length matches
+          if (end > start) {
+            chunks.push({start, end})
+          }
+  
+          // Prevent browsers like Firefox from getting stuck in an infinite loop
+          // See http://www.regexguru.com/2008/04/watch-out-for-zero-length-matches/
+          if (match.index == regex.lastIndex) {
+            regex.lastIndex++
+          }
+        }
+  
+        return chunks
+      }, [])
+  }
+  
+  identity (value) {
+    return value
+  }
 
   render(): React.Node {
     return (
@@ -85,53 +121,3 @@ class Linkify extends Component {
 
 export default Linkify;
 
-export function escapeRegExpFn (str) {
-  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&')
-}
-
-
-export function defaultFindChunks(
-  autoEscape,
-  caseSensitive,
-  sanitize=identity,
-  searchWords = [],
-  textToHighlight
-) {
-  console.log(searchWords)
-  console.log(textToHighlight);
-  textToHighlight = sanitize(textToHighlight)
-
-  return searchWords
-    .filter(searchWord => searchWord) // Remove empty words
-    .reduce((chunks, searchWord) => {
-      searchWord = sanitize(searchWord)
-
-      if (autoEscape) {
-        searchWord = escapeRegExpFn(searchWord)
-      }
-
-      const regex = new RegExp(/\bsearchWord\b/, caseSensitive ? 'g' : 'gi')
-
-      let match
-      while ((match = regex.exec(textToHighlight))) {
-        let start = match.index
-        let end = regex.lastIndex
-        // We do not return zero-length matches
-        if (end > start) {
-          chunks.push({start, end})
-        }
-
-        // Prevent browsers like Firefox from getting stuck in an infinite loop
-        // See http://www.regexguru.com/2008/04/watch-out-for-zero-length-matches/
-        if (match.index == regex.lastIndex) {
-          regex.lastIndex++
-        }
-      }
-
-      return chunks
-    }, [])
-}
-
-export function identity (value) {
-  return value
-}
