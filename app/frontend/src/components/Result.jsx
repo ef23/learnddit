@@ -18,7 +18,7 @@ class Result extends Component {
     this.showScore = this.showScore.bind(this);
     this.roundNearest = this.roundNearest.bind(this);
     this.checkExplicit = this.checkExplicit.bind(this);
-
+    console.log(this.props.comment[1]);
     this.explicit = this.checkExplicit(this.props.comment[0].body)
   }
 
@@ -50,8 +50,8 @@ class Result extends Component {
   }
 
   render() {
-    let breakdownLabel = ["Cos-sim score:", " x # of noun terms:", ' x √(comment score):']
-    let colors = ["blue", "green", "red"]
+    let breakdownLabel = ["Cos-sim score:", " x # of noun terms:", " x # of query terms", ' x √(comment score):']
+    let colors = ["blue", "purple", "green", "red"]
 
   	let comment = this.props.comment[0];
     let breakdown = this.props.comment[1];
