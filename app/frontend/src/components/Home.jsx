@@ -122,7 +122,6 @@ class Home extends Component {
 								<div>
 									{(
 										data.slice(this.props.history.start_index, this.state.numShowing).map((comment, i) => {
-<<<<<<< HEAD
 											console.log("rendering results")
 										return <Result key={comment[0].id} comment={comment} key_words={this.state.tokens} style={i % 2 === 0 ? "white" : "whitesmoke"}/> })
 									)}
@@ -140,22 +139,6 @@ class Home extends Component {
 															locale={localeInfo} />
 										</div>
 									}
-=======
-										return <Result key={i} comment={comment} style={i % 2 === 0 ? "white" : "whitesmoke"}/>})
-									)}
-									<div id="pagination-div">
-										<Pagination
-														selectComponentClass={Select}
-														total={this.state.num_pages}
-														current={this.state.current_page}
-														pageSize={this.state.page_size}
-														showSizeChanger
-														pageSizeOptions={['10','25','50','100']}
-														onShowSizeChange={this.onShowSizeChange}
-														onChange={this.changePage}
-														locale={localeInfo} />
-									</div>
->>>>>>> b5278ed07bae397c31ba7892dd3a54a293befd49
 								</div>
 			      }
 		      </div>

@@ -18,10 +18,6 @@ class Result extends Component {
     this.showScore = this.showScore.bind(this);
     this.roundNearest = this.roundNearest.bind(this);
     this.checkExplicit = this.checkExplicit.bind(this);
-<<<<<<< HEAD
-=======
-    console.log(this.props.comment[1]);
->>>>>>> b5278ed07bae397c31ba7892dd3a54a293befd49
     this.explicit = this.checkExplicit(this.props.comment[0].body)
   }
 
