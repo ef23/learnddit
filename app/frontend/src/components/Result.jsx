@@ -15,7 +15,6 @@ class Result extends Component {
       showBreakdown: false,
       showExplicit: false
     }
-
     this.showScore = this.showScore.bind(this);
     this.roundNearest = this.roundNearest.bind(this);
     this.checkExplicit = this.checkExplicit.bind(this);
@@ -46,7 +45,6 @@ class Result extends Component {
     for (var i = 0; i < nsfwWords.length; i++) {
       let regex = new RegExp("(" + nsfwWords[i] + ")");
       if (regex.test(comment)) {
-        // console.log("explicit!!!")
         return true;
       }
     }

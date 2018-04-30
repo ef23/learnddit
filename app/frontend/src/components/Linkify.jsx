@@ -1,4 +1,4 @@
-// @flow
+// framework used from react-linkify
 
 import React, { Component } from 'react';
 
@@ -12,22 +12,21 @@ class Linkify extends Component {
 
   constructor(props) {
     super(props);
-    // this.defaultFindChunks = this.defaultFindChunks.bind(this);
-    // this.identity = this.identity.bind(this);
   }
 
 
   parseString(string: string) {
     if (string === '') {
-      return string;
+      return (<Highlighter 
+        searchWords={this.props.key_words}
+        autoEscape={true}
+        highlightTag='b'
+        findChunks={this.defaultFindChunks}
+        textToHighlight={string} />);
     }
 
     const matches = defaultMatchDecorator(string);
     if (!matches) {
-      // console.log('finding chunks now');
-      console.log(string);
-      // console.dir(defaultFindChunks);
-      console.dir(this.props.key_words)
       return (<Highlighter 
         searchWords={this.props.key_words}
         autoEscape={true}
@@ -41,7 +40,13 @@ class Linkify extends Component {
     matches.forEach((match, i) => {
       // Push preceding text if there is any
       if (match.index > lastIndex) {
-        elements.push(string.substring(lastIndex, match.index));
+        const substring = string.substring(lastIndex, match.index)
+        elements.push(<Highlighter 
+          searchWords={this.props.key_words}
+          autoEscape={true}
+          highlightTag='b'
+          findChunks={this.defaultFindChunks}
+          textToHighlight={substring} />);
       }
 
       const decoratedHref = defaultHrefDecorator(match.url);
@@ -54,7 +59,13 @@ class Linkify extends Component {
 
     // Push remaining text if there is any
     if (string.length > lastIndex) {
-      elements.push(string.substring(lastIndex));
+      const substring = string.substring(lastIndex)
+      elements.push(<Highlighter 
+        searchWords={this.props.key_words}
+        autoEscape={true}
+        highlightTag='b'
+        findChunks={this.defaultFindChunks}
+        textToHighlight={substring} />);
     }
 
     return (elements.length === 1) ? elements[0] : elements;
@@ -71,8 +82,45 @@ class Linkify extends Component {
 
     return children;
   }
-
-
+  defaultFindChunks({
+    autoEscape,
+    caseSensitive,
+    sanitize,
+    searchWords,
+    textToHighlight
+  }
+  ) {
+    return searchWords
+      .reduce((chunks, searchWord) => {
+  
+        if (autoEscape) {
+          searchWord = searchWord.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
+        }
+  
+        const regex = new RegExp('\\b' + searchWord + '\\b', caseSensitive ? 'g' : 'gi');
+        let match;
+        while ((match = regex.exec(textToHighlight))) {
+          let start = match.index
+          let end = regex.lastIndex
+          // We do not return zero-length matches
+          if (end > start) {
+            chunks.push({start, end})
+          }
+  
+          // Prevent browsers like Firefox from getting stuck in an infinite loop
+          // See http://www.regexguru.com/2008/04/watch-out-for-zero-length-matches/
+          if (match.index == regex.lastIndex) {
+            regex.lastIndex++
+          }
+        }
+  
+        return chunks
+      }, [])
+  }
+  
+  identity (value) {
+    return value
+  }
 
   render(): React.Node {
     return (
@@ -85,53 +133,3 @@ class Linkify extends Component {
 
 export default Linkify;
 
-export function escapeRegExpFn (str) {
-  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&')
-}
-
-
-export function defaultFindChunks(
-  autoEscape,
-  caseSensitive,
-  sanitize=identity,
-  searchWords = [],
-  textToHighlight
-) {
-  console.log(searchWords)
-  console.log(textToHighlight);
-  textToHighlight = sanitize(textToHighlight)
-
-  return searchWords
-    .filter(searchWord => searchWord) // Remove empty words
-    .reduce((chunks, searchWord) => {
-      searchWord = sanitize(searchWord)
-
-      if (autoEscape) {
-        searchWord = escapeRegExpFn(searchWord)
-      }
-
-      const regex = new RegExp(/\bsearchWord\b/, caseSensitive ? 'g' : 'gi')
-
-      let match
-      while ((match = regex.exec(textToHighlight))) {
-        let start = match.index
-        let end = regex.lastIndex
-        // We do not return zero-length matches
-        if (end > start) {
-          chunks.push({start, end})
-        }
-
-        // Prevent browsers like Firefox from getting stuck in an infinite loop
-        // See http://www.regexguru.com/2008/04/watch-out-for-zero-length-matches/
-        if (match.index == regex.lastIndex) {
-          regex.lastIndex++
-        }
-      }
-
-      return chunks
-    }, [])
-}
-
-export function identity (value) {
-  return value
-}

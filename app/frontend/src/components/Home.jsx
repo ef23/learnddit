@@ -36,9 +36,7 @@ class Home extends Component {
 	}
 
 	componentWillMount(){
-		console.log(this.props)
-		let query = this.props.location.search
-		console.dir(this.props)
+		let query = this.props.location.search;
 		if (query) {
 			let parsed = queryString.parse(query)
 			if (parsed.input_index) this.setState({start_index: parsed.page})
@@ -69,14 +67,10 @@ class Home extends Component {
 		this.setState({loading: true})
 		var arr = input_query.split(" ")
 		var qParams = arr.map(key =>key).join('&');
-		console.dir(qParams);
-		console.log('running related comments fetch')
-		console.log(this.state.start_index);
 		axios.get('/search', {
 				params: {query: qParams, start_index: (this.state.current_page-1)*this.state.page_size, page_size: this.state.page_size }
 			})
 		.then(response => {
-			console.log(response)
 			this.setState({
 				data: response.data[0],
 				num_pages: response.data[1],
@@ -86,7 +80,6 @@ class Home extends Component {
 				errored: false,
 				numShowing: this.state.page_size,
 			})
-			console.dir(this.state.tokens);
 		}).catch(error => {
 			this.setState({ errored: true });
 			console.error(error);
@@ -131,7 +124,7 @@ class Home extends Component {
 										data.slice(this.props.history.start_index, this.state.numShowing).map((comment, i) => {
 <<<<<<< HEAD
 											console.log("rendering results")
-										return <Result key={comment[0].id} comment={comment} style={i % 2 === 0 ? "white" : "whitesmoke"} key_words={this.state.tokens}/> })
+										return <Result key={comment[0].id} comment={comment} key_words={this.state.tokens} style={i % 2 === 0 ? "white" : "whitesmoke"}/> })
 									)}
 									{ !data.length ? null : 
 										<div id="pagination-div">
