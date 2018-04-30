@@ -3,7 +3,8 @@ import Truncate from 'react-truncate';
 
 import { nsfwWords } from '../constants/constants.js'
 
-import Linkify from 'react-linkify'
+import Linkify from './Linkify.jsx'
+
 
 class Result extends Component {
 
@@ -14,11 +15,9 @@ class Result extends Component {
       showBreakdown: false,
       showExplicit: false
     }
-
     this.showScore = this.showScore.bind(this);
     this.roundNearest = this.roundNearest.bind(this);
     this.checkExplicit = this.checkExplicit.bind(this);
-    console.log(this.props.comment[1]);
     this.explicit = this.checkExplicit(this.props.comment[0].body)
   }
 
@@ -42,12 +41,12 @@ class Result extends Component {
     for (var i = 0; i < nsfwWords.length; i++) {
       let regex = new RegExp("(" + nsfwWords[i] + ")");
       if (regex.test(comment)) {
-        // console.log("explicit!!!")
         return true;
       }
     }
     return false;
   }
+
 
   render() {
     let breakdownLabel = ["Cos-sim score:", " x # of noun terms:", " x # of query terms", ' x √(comment score):']
@@ -64,11 +63,15 @@ class Result extends Component {
       </div>) :
       (!this.state.expanded ?
         (<div className="comment-body">
-            <Linkify properties={{target: '_blank', style: {fontWeight: 'bold'}}}>{comment.summary}</Linkify>
+          <Linkify properties={{target: '_blank', style: {fontWeight: 'bold'}}} key_words={this.props.key_words}>
+            {comment.summary}
+          </ Linkify>
             <button onClick={() => this.setState({expanded: true})}>read more</button>
          </div>) :
         (<div className="comment-body">
-          <Linkify properties={{target: '_blank', style: {fontWeight: 'bold'}}}>{comment.body}</Linkify>
+          <Linkify properties={{target: '_blank', style: {fontWeight: 'bold'}}} key_words={this.props.key_words}>
+            {comment.body}
+          </ Linkify>
           <button onClick={() => this.setState({expanded: false})}>read less</button>
         </div>)
       )
