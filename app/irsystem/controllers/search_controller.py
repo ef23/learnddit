@@ -140,15 +140,20 @@ def index_search(query_tokens, orig_tokens, index, idf, doc_norms):
   base_sentence = ["I", "want", "to", "learn", "how", "to"]
   tokens_pos = pos_tag(base_sentence + orig_tokens)
 
+  print tokens_pos
+
   word_weights = {}
 
   # query expnaded words get a score of 1 by default because otherwise certain words
   # that have been expanded get too much weight I'll fix this later -eric
   for token in tokens:
-    word_weights[token] = 1
+    if token not in orig_tokens:
+      word_weights[token] = 1
 
   # nouns are important, want to have them in the response
   nouns = set([])
+
+  full_query_weight = 0
 
   # weigh adj/adverbs lower then verbs, which are weighed lower than nouns
   for (token, treebank_tag) in tokens_pos:
@@ -159,18 +164,26 @@ def index_search(query_tokens, orig_tokens, index, idf, doc_norms):
     token = token.lower()
     if treebank_tag.startswith('J') or treebank_tag.startswith('R'):
       word_weights[token] = 1
+      full_query_weight += 1
     elif treebank_tag.startswith('V'):
       word_weights[token] = 5
+      full_query_weight += 5
     elif treebank_tag.startswith('N'):
       word_weights[token] = 10
       nouns.add(token)
+      full_query_weight += 10
     else:
       word_weights[token] = 0
 
   print("Got tokens: " + str(tokens))
+  print("full query weight: " + str(full_query_weight))
+
+  
 
   # regular cos-sim without doc_normalization
   scores = defaultdict(int)
+  encountered_token_scores = defaultdict(int)
+  encountered_tokens = defaultdict(list)
   counts = Counter(tokens)
   query_norm = np.linalg.norm(
     [val * idf[token] for (token, val) in counts.items() if token in idf])
@@ -181,12 +194,17 @@ def index_search(query_tokens, orig_tokens, index, idf, doc_norms):
         scores[doc_id] += doc_count * \
           (idf[token] ** 2) * query_count * word_weights[token]**2 / \
           (query_norm + 1)
+        if token in tokens and token not in encountered_tokens[doc_id]:
+            encountered_token_scores[doc_id] += word_weights[token]
+            encountered_tokens[doc_id].append(token)
+
+  
 
   # have a score breakdown dict to display on frontend
   # first entry of breakdown is baseline cos_sim score
-  # second entry is the noun score
-  # third entry is the upvote score
-  # fourth entry will be the token count score
+  # second entry will be the token count score
+  # third entry is the noun score
+  # fourth entry is the upvote score
   # final entry will be the final score
   score_breakdowns = {}
 
@@ -198,6 +216,13 @@ def index_search(query_tokens, orig_tokens, index, idf, doc_norms):
   for doc_id in scores.keys():
     # init the breakdown to be the base cos-sim score
     score_breakdowns[doc_id] = [scores[doc_id], 1]
+    print float(encountered_token_scores[doc_id])/full_query_weight
+    # weight docs by query token count
+    print"before:", scores[doc_id]
+    scores[doc_id] *= (float(encountered_token_scores[doc_id])/full_query_weight)
+    print"after:", scores[doc_id]
+
+    score_breakdowns[doc_id].append(encountered_token_scores[doc_id]/full_query_weight)    
     if doc_id not in noun_docs and len(noun_docs) != 0:
       scores[doc_id] *= 0.1
 
@@ -233,7 +258,7 @@ def index_search(query_tokens, orig_tokens, index, idf, doc_norms):
 
     # appropriately set the third entry of breakdown to be upvote score
     curr_score_breakdown = score_breakdowns[doc_id]
-    curr_score_breakdown.append(comment["score"] * score_norm[subreddit])
+    curr_score_breakdown.append(math.sqrt(comment["score"]) * score_norm[subreddit])
     score_breakdowns[doc_id] = curr_score_breakdown
 
   # get rid of all doc ids not in the DB
