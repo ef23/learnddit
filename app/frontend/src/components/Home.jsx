@@ -22,7 +22,8 @@ class Home extends Component {
 			errored: false,
 			current_page: 1,
 			num_pages: 0,
-			page_size: DEFAULT_NUM
+			page_size: DEFAULT_NUM,
+			tokens: []
 		};
 		const randSuggestions = ["play the piano", "motivate myself", "sleep earlier", "be less insecure", "speak japanese"]
     this.suggestion = randSuggestions[Math.floor(Math.random()*randSuggestions.length)]
@@ -79,11 +80,13 @@ class Home extends Component {
 			this.setState({
 				data: response.data[0],
 				num_pages: response.data[1],
+				tokens: response.data[2],
 				hasSearched: true,
 				loading: false,
 				errored: false,
 				numShowing: this.state.page_size,
 			})
+			console.dir(this.state.tokens);
 		}).catch(error => {
 			this.setState({ errored: true });
 			console.error(error);
