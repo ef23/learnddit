@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom'
 import axios from 'axios'
 import queryString from 'query-string'
+import Pagination from 'rc-pagination'
+import localeInfo from 'rc-pagination/lib/locale/en_US';
+import Select from 'rc-select';
+
 
 import Result from './Result'
 
@@ -12,15 +17,18 @@ class Home extends Component {
 		this.state = {
 			value: '',
 			data : [],
-			numShowing: DEFAULT_NUM,
 			hasSearched: false,
 			loading : false,
 			errored: false,
+			current_page: 1,
+			num_pages: 0,
+			page_size: DEFAULT_NUM
 		};
 		const randSuggestions = ["play the piano", "motivate myself", "sleep earlier", "be less insecure", "speak japanese"]
     this.suggestion = randSuggestions[Math.floor(Math.random()*randSuggestions.length)]
 
-    this.showMore = this.showMore.bind(this);
+		this.changePage = this.changePage.bind(this);
+		this.onShowSizeChange = this.onShowSizeChange.bind(this);
 		this.handleChange = this.handleChange.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.getRelatedComments = this.getRelatedComments.bind(this);
@@ -29,9 +37,11 @@ class Home extends Component {
 	componentWillMount(){
 		console.log(this.props)
 		let query = this.props.location.search
+		console.dir(this.props)
 		if (query) {
 			let parsed = queryString.parse(query)
-			this.getRelatedComments(parsed.query)
+			if (parsed.input_index) this.setState({start_index: parsed.page})
+			this.getRelatedComments(parsed.query, this.state.start_index)
 			this.setState({value: parsed.query})
 		}
 	}
@@ -43,12 +53,12 @@ class Home extends Component {
 	handleSubmit(event){
 		let submission = this.state.value === "" ? this.suggestion : this.state.value
 		let query = '?query=' + submission
-		event.preventDefault();
+		if (event) event.preventDefault();
 		this.props.history.push({
 		  pathname: '/',
-		  search: query
+			search: query
 		})
-		this.getRelatedComments(submission)
+		this.getRelatedComments(submission, 0)
 	}
 
 	getRelatedComments(input_query) {
@@ -58,18 +68,21 @@ class Home extends Component {
 		this.setState({loading: true})
 		var arr = input_query.split(" ")
 		var qParams = arr.map(key =>key).join('&');
+		console.dir(qParams);
 		console.log('running related comments fetch')
+		console.log(this.state.start_index);
 		axios.get('/search', {
-				params: { query: qParams }
+				params: {query: qParams, start_index: (this.state.current_page-1)*this.state.page_size, page_size: this.state.page_size }
 			})
 		.then(response => {
 			console.log(response)
 			this.setState({
-				data: response.data,
+				data: response.data[0],
+				num_pages: response.data[1],
 				hasSearched: true,
 				loading: false,
 				errored: false,
-				numShowing: DEFAULT_NUM,
+				numShowing: this.state.page_size,
 			})
 		}).catch(error => {
 			this.setState({ errored: true });
@@ -77,9 +90,13 @@ class Home extends Component {
 		});
 	}
 
-	showMore() {
-		let currNum = this.state.numShowing;
-		this.setState({ numShowing: currNum+=10 })
+	changePage(page) {
+		this.state.current_page = page;
+		this.getRelatedComments(this.state.value);
+	}
+
+	onShowSizeChange(current, new_size) {
+		this.setState({page_size: new_size});
 	}
 
 	render() {
@@ -106,16 +123,26 @@ class Home extends Component {
 		      	{data.length ? <div className="tip">Hover over the IR score to see how comments are ranked!</div> : null}
 			      {
 			      	this.state.loading ? (<div className="loader"></div>) :
-			      	(
-			      		data.slice(0, this.state.numShowing).map((comment, i) => {
-			      		return <Result key={comment[0].id} comment={comment} style={i % 2 === 0 ? "white" : "whitesmoke"}/>})
-		      		)
+								<div>
+									{(
+										data.slice(this.props.history.start_index, this.state.numShowing).map((comment, i) => {
+											console.log("rendering results")
+										return <Result key={comment[0].id} comment={comment} style={i % 2 === 0 ? "white" : "whitesmoke"}/>})
+									)}
+									<div id="pagination-div">
+										<Pagination 
+														selectComponentClass={Select}
+														total={this.state.num_pages}
+														current={this.state.current_page}
+														pageSize={this.state.page_size}
+														showSizeChanger
+														pageSizeOptions={['10','25','50','100']} 
+														onShowSizeChange={this.onShowSizeChange}
+														onChange={this.changePage}
+														locale={localeInfo} />
+									</div>
+								</div>
 			      }
-			      {
-			      	data.length && !this.state.loading ?
-			      		<button className="load-more" onClick={this.showMore}>Load more comments ({data.length - this.state.numShowing})</button> :
-			      		null
-			    	}
 		      </div>
 	      </div>
 	    	<div className="footer">

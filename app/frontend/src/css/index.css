@@ -34,6 +34,7 @@ label{
 
 .header {
   background: #d2e3f6;
+  user-select: none;
 }
 
 .title{
@@ -152,3 +153,8 @@ form {
   font-size: 11px;
   text-align: center;
 }
+
+#pagination-div {
+  text-align: center;
+}
+

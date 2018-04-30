@@ -35,6 +35,22 @@ def search2():
   print('searching:')
   query = str(request.args.get('query'))
 
+  start_index = request.args.get('start_index') 
+  if start_index is not None:
+    print(start_index)
+    start_index = int(start_index)
+  else:
+    start_index = 0
+
+  page_size = request.args.get('page_size') 
+  if page_size is not None:
+    print(page_size)
+    page_size = int(page_size)
+  else:
+    page_size = 10
+
+
+
   # irrelevant_tokens = ['i','want','to','learn','how']
   irrelevant_tokens = []
 
@@ -46,7 +62,7 @@ def search2():
   tokens = expand_query(orig_tokens)
 
   index, tokens = build_index(tokens)
-  results = index_search(tokens, orig_tokens, index, app.config['idfs'], app.config['doc_norms'])
+  results = index_search(tokens, orig_tokens, index, app.config['idfs'], app.config['doc_norms'], start_index, page_size)
 
   return json.dumps(results)
 
@@ -109,7 +125,7 @@ def build_index(query_tokens):
       index[token] = {}
   return index, tokens
 
-def index_search(query_tokens, orig_tokens, index, idf, doc_norms):
+def index_search(query_tokens, orig_tokens, index, idf, doc_norms, start_index=0, page_size=10):
   """ Search the collection of documents for the given query
 
   Arguments
@@ -238,7 +254,10 @@ def index_search(query_tokens, orig_tokens, index, idf, doc_norms):
   # create the mapping
   for comment_obj in comment_objs:
     comment_obj = cvt_Comment_to_dict(comment_obj)
+    comment_body = comment_obj["body"]
+    # comment_obj['summary'] = 
     id_to_comment[comment_obj["id"]] = comment_obj
+    
 
   for doc_id in scores:
     # if comment_id is not in DB for some reason, get rid of it
@@ -270,9 +289,21 @@ def index_search(query_tokens, orig_tokens, index, idf, doc_norms):
     curr_score_breakdown.append(scores[doc_id])
     score_breakdowns[doc_id] = curr_score_breakdown
 
-  output = sorted(filtered_scores.items(), key=lambda x: x[1], reverse=True)
+  sorted_list = sorted(filtered_scores.items(), key=lambda x: x[1], reverse=True)
 
-  return [[id_to_comment[str(comment[0])], score_breakdowns[str(comment[0])]] for comment in output]
+  output = []
+
+  for comment in sorted_list[start_index:start_index+page_size]:
+    comment_dict = id_to_comment[str(comment[0])]
+    comment_body = comment_dict["body"].encode("ascii", "ignore")
+    # print(type(comment_body))
+    # print(len("comment_body"))
+    summary = summarizePassage(comment_body, summaryRatio=(250./len(comment_body)))
+    # print(summary)
+    comment_dict["summary"] = summary
+    output.append([comment_dict, score_breakdowns[str(comment[0])]])
+
+  return output, len(sorted_list)
 
 ################################ HELPER FUNCTIONS ##################################
 
@@ -305,3 +336,13 @@ def cvt_Comment_to_dict(comment):
   comment_dict["permalink"] = "http://www.reddit.com/comments/" + comment.link_id[3:] + "/_/" + comment.comment_id
   comment_dict["gilded"] = comment.gilded
   return comment_dict
+
+# https://stackoverflow.com/questions/37939341/how-do-i-get-started-with-a-project-on-text-summarization-using-nlp
+def summarizePassage(text,summaryRatio=0.5):
+  from gensim.summarization import summarize
+  try:
+    summary = summarize(text,split=True,ratio=summaryRatio)
+  except:
+    print "WARNING: Gensim unable to reduce text"
+    return [text]
+  return "...".join(summary)
