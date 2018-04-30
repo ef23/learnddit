@@ -3,6 +3,8 @@ import Truncate from 'react-truncate';
 
 import { nsfwWords } from '../constants/constants.js'
 
+import Linkify from 'react-linkify'
+
 class Result extends Component {
 
   constructor(props){
@@ -61,12 +63,12 @@ class Result extends Component {
         <p><strong>Warning:</strong> this content may be NSFW. Click to reveal.</p>
       </div>) :
       (!this.state.expanded ?
-        (<div>
-            <div>{comment.summary}</div>
+        (<div className="comment-body">
+            <Linkify properties={{target: '_blank', style: {fontWeight: 'bold'}}}>{comment.summary}</Linkify>
             <button onClick={() => this.setState({expanded: true})}>read more</button>
          </div>) :
-        (<div>
-          <p>{comment.body}</p>
+        (<div className="comment-body">
+          <Linkify properties={{target: '_blank', style: {fontWeight: 'bold'}}}>{comment.body}</Linkify>
           <button onClick={() => this.setState({expanded: false})}>read less</button>
         </div>)
       )

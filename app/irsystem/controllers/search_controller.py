@@ -194,6 +194,7 @@ def index_search(query_tokens, orig_tokens, index, idf, doc_norms, start_index=0
   print("Got tokens: " + str(tokens))
   print("full query weight: " + str(full_query_weight))
 
+  highest_tfidfs = defaultdict(list)
 
 
   # regular cos-sim without doc_normalization

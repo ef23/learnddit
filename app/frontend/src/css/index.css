@@ -13,7 +13,7 @@ body {
 
 input[type=text]{
   background: #d2e3f6;
-	width: 75%;
+	width: 25%;
   border: none;
   border-bottom: 1px solid black;
 	padding: 12px 20px;
@@ -26,7 +26,7 @@ input[type=text]{
 }
 
 label{
-	display: block;
+	display: inline;
 	padding-top: 5%;
 	margin: 0 auto;
 	width: 50%;
@@ -35,13 +35,15 @@ label{
 .header {
   background: #d2e3f6;
   user-select: none;
+  text-align: center;
 }
 
 .title{
 	font-size: 100px;
 	text-align: center;
 	font-family: 'VAG Rounded';
-	font-weight: bold;
+  font-weight: bold;
+  margin-top: 50px;
 }
 
 .info {
@@ -158,3 +160,6 @@ form {
   text-align: center;
 }
 
+.comment-body {
+  word-wrap: break-word;
+}
