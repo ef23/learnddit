@@ -5,6 +5,7 @@ from scipy.sparse.linalg import svds
 from sklearn.preprocessing import normalize
 import numpy as np
 from nltk.stem import PorterStemmer
+import nltk
 
 class SVD:
     @staticmethod
@@ -54,13 +55,13 @@ class SVD:
 
     @staticmethod
     def closest_words(word_in, k, words_compressed, word_to_index, index_to_word):
+        word_in = word_in.lower()
         if word_in not in word_to_index: return "Not in vocab."
         sims = words_compressed.dot(words_compressed[word_to_index[word_in], :])
         asort = np.argsort(-sims)[:k + 1]
         return [(index_to_word[i], sims[i] / sims[asort[0]]) for i in asort[1:]]
 
-
-if __name__ == "__main__":
+def generateMatrices():
     vectorizer = TfidfVectorizer(stop_words='english', max_df=.7,
                                  min_df=75)
     folder = "Matrices"
@@ -84,7 +85,7 @@ if __name__ == "__main__":
     print("Got word_to_index!")
 
     print("Getting index_to_word...")
-    index_to_word = {i: t for t, i in word_to_index.iteritems()}
+    index_to_word = {i: t.lower() for t, i in word_to_index.iteritems()}
     print("Got index_to_word!")
 
     print("Saving word_to_index...")
@@ -104,5 +105,34 @@ if __name__ == "__main__":
     np.save(folder + "/words_compressed.npy", words_compressed)
     print("Saved words_compressed!")
 
-    print({k: word_to_index[k] for k in word_to_index.keys()[:10]})
-    print(SVD.closest_words("piano", 10, words_compressed, word_to_index, index_to_word))
+def useMatrices():
+    folder = "Matrices"
+
+    with open(folder + "/word_to_index.pkl", 'rb') as word_to_index_file, open(folder + "/index_to_word.pkl", 'rb') as index_to_word_file:
+        word_to_index = pickle.load(word_to_index_file)
+        index_to_word = pickle.load(index_to_word_file)
+        words_compressed = np.load(folder + "/words_compressed.npy")
+
+        print(SVD.closest_words("piano", 10, words_compressed, word_to_index, index_to_word))
+        print(SVD.closest_words("Piano", 10, words_compressed, word_to_index, index_to_word))
+        print(SVD.closest_words("play", 10, words_compressed, word_to_index, index_to_word))
+        print(SVD.closest_words("Play", 10, words_compressed, word_to_index, index_to_word))
+
+def getNouns(str):
+    # function to test if something is a noun
+    is_noun = lambda pos: pos[:2] == 'NN'
+    # do the nlp stuff
+    tokenized = nltk.word_tokenize(str)
+    nouns = [word for (word, pos) in nltk.pos_tag(tokenized) if is_noun(pos)]
+
+    return nouns
+
+# not working atm
+def testNouns():
+    print(getNouns("I want to learn how to play the piano"))
+    print(getNouns("fight kangroos"))
+    print(getNouns("make more friends"))
+
+
+if __name__ == "__main__":
+    useMatrices()
