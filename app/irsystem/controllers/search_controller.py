@@ -178,7 +178,7 @@ def index_search(query_tokens, orig_tokens, index, idf, doc_norms):
   print("Got tokens: " + str(tokens))
   print("full query weight: " + str(full_query_weight))
 
-  
+
 
   # regular cos-sim without doc_normalization
   scores = defaultdict(int)
@@ -198,7 +198,7 @@ def index_search(query_tokens, orig_tokens, index, idf, doc_norms):
             encountered_token_scores[doc_id] += word_weights[token]
             encountered_tokens[doc_id].append(token)
 
-  
+
 
   # have a score breakdown dict to display on frontend
   # first entry of breakdown is baseline cos_sim score
@@ -216,13 +216,11 @@ def index_search(query_tokens, orig_tokens, index, idf, doc_norms):
   for doc_id in scores.keys():
     # init the breakdown to be the base cos-sim score
     score_breakdowns[doc_id] = [scores[doc_id], 1]
-    print float(encountered_token_scores[doc_id])/full_query_weight
-    # weight docs by query token count
-    print"before:", scores[doc_id]
-    scores[doc_id] *= (float(encountered_token_scores[doc_id])/full_query_weight)
-    print"after:", scores[doc_id]
 
-    score_breakdowns[doc_id].append(encountered_token_scores[doc_id]/full_query_weight)    
+    # weight docs by query token count
+    scores[doc_id] *= float(encountered_token_scores[doc_id])/full_query_weight
+
+    score_breakdowns[doc_id].append(float(encountered_token_scores[doc_id])/full_query_weight)
     if doc_id not in noun_docs and len(noun_docs) != 0:
       scores[doc_id] *= 0.1
 
