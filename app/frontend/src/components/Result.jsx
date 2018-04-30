@@ -3,7 +3,7 @@ import Truncate from 'react-truncate';
 
 import { nsfwWords } from '../constants/constants.js'
 
-import Linkify from 'react-linkify'
+import Linkify from './Linkify.jsx'
 
 class Result extends Component {
 
@@ -64,11 +64,11 @@ class Result extends Component {
       </div>) :
       (!this.state.expanded ?
         (<div className="comment-body">
-            <Linkify properties={{target: '_blank', style: {fontWeight: 'bold'}}}>{comment.summary}</Linkify>
+            <Linkify properties={{target: '_blank', style: {fontWeight: 'bold'}}} text={comment.summary} />
             <button onClick={() => this.setState({expanded: true})}>read more</button>
          </div>) :
         (<div className="comment-body">
-          <Linkify properties={{target: '_blank', style: {fontWeight: 'bold'}}}>{comment.body}</Linkify>
+          <Linkify properties={{target: '_blank', style: {fontWeight: 'bold'}}} text={comment.body} />
           <button onClick={() => this.setState({expanded: false})}>read less</button>
         </div>)
       )

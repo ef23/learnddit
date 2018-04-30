@@ -132,18 +132,20 @@ class Home extends Component {
 											console.log("rendering results")
 										return <Result key={comment[0].id} comment={comment} style={i % 2 === 0 ? "white" : "whitesmoke"}/>})
 									)}
-									<div id="pagination-div">
-										<Pagination 
-														selectComponentClass={Select}
-														total={this.state.num_pages}
-														current={this.state.current_page}
-														pageSize={this.state.page_size}
-														showSizeChanger
-														pageSizeOptions={['10','25','50','100']} 
-														onShowSizeChange={this.onShowSizeChange}
-														onChange={this.changePage}
-														locale={localeInfo} />
-									</div>
+									{ !data.length ? null : 
+										<div id="pagination-div">
+											<Pagination 
+															selectComponentClass={Select}
+															total={this.state.num_pages}
+															current={this.state.current_page}
+															pageSize={this.state.page_size}
+															showSizeChanger
+															pageSizeOptions={['10','25','50','100']} 
+															onShowSizeChange={this.onShowSizeChange}
+															onChange={this.changePage}
+															locale={localeInfo} />
+										</div>
+									}
 								</div>
 			      }
 		      </div>

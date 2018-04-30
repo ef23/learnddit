@@ -1,81 +1,34 @@
 // from https://github.com/tasti/react-linkify/blob/master/src/components/Linkify.jsx
 
 import * as React from 'react';
+import StandardLinkify from 'react-linkify';
 
-import defaultComponentDecorator from 'decorators/defaultComponentDecorator';
-import defaultHrefDecorator from 'decorators/defaultHrefDecorator';
-import defaultMatchDecorator from 'decorators/defaultMatchDecorator';
-import defaultTextDecorator from 'decorators/defaultTextDecorator';
 
-type Props = {
-  children: React.Node,
-  componentDecorator: (string, string, number) => React.Node,
-  hrefDecorator: (string) => string,
-  matchDecorator: (string) => Array<Object>,
-  textDecorator: (string) => string,
-};
+export default class Linkify extends React.Component {
 
-class Linkify extends React.Component<Props, {}> {
-  static defaultProps = {
-    componentDecorator: defaultComponentDecorator,
-    hrefDecorator: defaultHrefDecorator,
-    matchDecorator: defaultMatchDecorator,
-    textDecorator: defaultTextDecorator,
-  };
-
-  parseString(string: string) {
-    if (string === '') {
-      return string;
-    }
-
-    const matches = this.props.matchDecorator(string);
-    if (!matches) {
-      return string;
-    }
-
-    const elements = [];
-    let lastIndex = 0;
-    matches.forEach((match, i) => {
-      // Push preceding text if there is any
-      if (match.index > lastIndex) {
-        elements.push(string.substring(lastIndex, match.index));
-      }
-
-      const decoratedHref = this.props.hrefDecorator(match.url);
-      const decoratedText = this.props.textDecorator(match.text);
-      const decoratedComponent = this.props.componentDecorator(decoratedHref, decoratedText, i);
-      elements.push(decoratedComponent);
-
-      lastIndex = match.lastIndex;
-    });
-
-    // Push remaining text if there is any
-    if (string.length > lastIndex) {
-      elements.push(string.substring(lastIndex));
-    }
-
-    return (elements.length === 1) ? elements[0] : elements;
+  constructor(props) {
+    super(props);
+    this.embolden = this.embolden.bind(this);
   }
 
-  parse(children: any, key: number = 0) {
-    if (typeof children === 'string') {
-      return this.parseString(children);
-    } else if (React.isValidElement(children) && (children.type !== 'a') && (children.type !== 'button')) {
-      return React.cloneElement(children, {key: key}, this.parse(children.props.children));
-    } else if (Array.isArray(children)) {
-      return children.map((child, i) => this.parse(child, i));
-    }
-
-    return children;
+  embolden(input) {
+    console.log(React.version)
+    console.dir(input);
+    return input;
   }
 
-  render(): React.Node {
+  render() {
+    const linkifiedText = (
+      <StandardLinkify properties={this.props.properties}>
+        {this.props.text}
+      </StandardLinkify>)
+
+    const linkifiedAndBolded = this.embolden(linkifiedText);
     return (
-      <React.Fragment>
-        {this.parse(this.props.children)}
-      </React.Fragment>
-    );
+      <div>
+        {linkifiedAndBolded}
+      </div>
+    )
   }
 }
 
-export default Linkify;
