@@ -22,12 +22,7 @@ def render_homepage():
 
 @app.route('/svd', methods=['GET'])
 def get_svd():
-  CLOSEST_WORDS = 2
-  query = str(request.args.get('query'))
-  tokens = [token for token in tokenizer.tokenize(query.lower()) if token]
-  sim = []
-  for token in tokens:
-    sim += closest_words(token, CLOSEST_WORDS)
+  
   return json.dumps(sim)
 
 @app.route('/search', methods=['GET'])
@@ -303,7 +298,16 @@ def index_search(query_tokens, orig_tokens, index, idf, doc_norms, start_index=0
     comment_dict["summary"] = summary
     output.append([comment_dict, score_breakdowns[str(comment[0])]])
 
-  return output, len(sorted_list), tokens
+  CLOSEST_WORDS = 2
+  query = str(request.args.get('query'))
+  svd_tokens = [token for token in tokenizer.tokenize(query.lower()) if token]
+  sim = []
+  for token in svd_tokens:
+    sim += closest_words(token, CLOSEST_WORDS)
+
+  print(json.dumps(sim))
+
+  return output, len(sorted_list), tokens, json.dumps(sim)
 
 ################################ HELPER FUNCTIONS ##################################
 

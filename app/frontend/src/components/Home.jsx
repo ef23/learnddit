@@ -22,7 +22,9 @@ class Home extends Component {
 			errored: false,
 			current_page: 1,
 			num_pages: 0,
-			page_size: DEFAULT_NUM
+			page_size: DEFAULT_NUM,
+			token: [],
+			sim_words: []
 		};
 		const randSuggestions = ["play the piano", "motivate myself", "sleep earlier", "be less insecure", "speak japanese"]
     this.suggestion = randSuggestions[Math.floor(Math.random()*randSuggestions.length)]
@@ -35,9 +37,7 @@ class Home extends Component {
 	}
 
 	componentWillMount(){
-		console.log(this.props)
-		let query = this.props.location.search
-		console.dir(this.props)
+		let query = this.props.location.search;
 		if (query) {
 			let parsed = queryString.parse(query)
 			if (parsed.input_index) this.setState({start_index: parsed.page})
@@ -51,6 +51,7 @@ class Home extends Component {
 	}
 
 	handleSubmit(event){
+		this.state.current_page = 1;
 		let submission = this.state.value === "" ? this.suggestion : this.state.value
 		let query = '?query=' + submission
 		if (event) event.preventDefault();
@@ -58,7 +59,7 @@ class Home extends Component {
 		  pathname: '/',
 			search: query
 		})
-		this.getRelatedComments(submission, 0)
+		this.getRelatedComments(submission)
 	}
 
 	getRelatedComments(input_query) {
@@ -68,22 +69,20 @@ class Home extends Component {
 		this.setState({loading: true})
 		var arr = input_query.split(" ")
 		var qParams = arr.map(key =>key).join('&');
-		console.dir(qParams);
-		console.log('running related comments fetch')
-		console.log(this.state.start_index);
 		axios.get('/search', {
 				params: {query: qParams, start_index: (this.state.current_page-1)*this.state.page_size, page_size: this.state.page_size }
 			})
 		.then(response => {
-			console.log(response)
 			this.setState({
 				data: response.data[0],
 				num_pages: response.data[1],
+				tokens: response.data[2],
+				sim_words: JSON.parse(response.data[3]),
 				hasSearched: true,
 				loading: false,
 				errored: false,
 				numShowing: this.state.page_size,
-			})
+			});
 		}).catch(error => {
 			this.setState({ errored: true });
 			console.error(error);
@@ -111,6 +110,8 @@ class Home extends Component {
 									{word: "chord", score: 0.8855595339680566},
 									{word: "sheet", score: 0.8837466196644155},
 									{word: "keyboard", score: 0.8738338737772975}]
+		const sim_words = this.state.sim_words;
+		
     return (
     	<div>
     		<div>
@@ -130,11 +131,11 @@ class Home extends Component {
 			      </form>
 		      </div>
 		      <div>
-		      	{data.length ? <div className="tip">Hover over the IR score to see how comments are ranked!</div> : null}
+		      	{data.length && !this.state.loading ? <div className="tip">Hover over the IR score to see how comments are ranked!</div> : null}
 						<div className="svd">
 							<p>Here are the top similar words to your query</p>
 							<div className="sim-words">
-									{exampleSVDData.map(entry => { return <button type="button"><b>{entry.word}</b> ({Math.ceil(entry.score * 100)/100 })</button>})}
+									{sim_words.length ? sim_words.map((entry, i) => { return <button type="button" key={i}><b>{entry[0]}</b> ({Math.ceil(entry[1] * 100)/100 })</button>}) : null}
 							</div>
 						</div>
 			      {
@@ -142,9 +143,10 @@ class Home extends Component {
 								<div>
 									{(
 										data.slice(this.props.history.start_index, this.state.numShowing).map((comment, i) => {
-										return <Result key={i} comment={comment} style={i % 2 === 0 ? "white" : "whitesmoke"}/>})
+										return <Result key={i} comment={comment} style={i % 2 === 0 ? "white" : "whitesmoke"} key_words={this.state.tokens}/>})
 									)}
-									{ !data.length ? <p id="no_results">No Results Found</p> :
+									{ !data.length && this.props.history.search ? <p id="no_results">No Results Found</p> : null }
+									{ !data.length ? null:
 										<div id="pagination-div">
 											<Pagination
 															selectComponentClass={Select}
