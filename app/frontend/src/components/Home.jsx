@@ -50,6 +50,7 @@ class Home extends Component {
 	}
 
 	handleSubmit(event){
+		this.state.current_page = 1;
 		let submission = this.state.value === "" ? this.suggestion : this.state.value
 		let query = '?query=' + submission
 		if (event) event.preventDefault();
@@ -57,7 +58,7 @@ class Home extends Component {
 		  pathname: '/',
 			search: query
 		})
-		this.getRelatedComments(submission, 0)
+		this.getRelatedComments(submission)
 	}
 
 	getRelatedComments(input_query) {
