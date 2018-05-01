@@ -146,7 +146,7 @@ class Home extends Component {
 										data.slice(this.props.history.start_index, this.state.numShowing).map((comment, i) => {
 										return <Result key={i} comment={comment} style={i % 2 === 0 ? "white" : "whitesmoke"} key_words={this.state.tokens}/>})
 									)}
-									{ !data.length && this.props.history.search ? <p id="no_results">No Results Found</p> : null }
+									{ !data.length && this.state.hasSearched ? <p id="no_results">No Results Found</p> : null }
 									{ !data.length ? null:
 										<div id="pagination-div">
 											<Pagination
