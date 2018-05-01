@@ -14,11 +14,16 @@ class Linkify extends Component {
     super(props);
   }
 
+  componentWillMount() {
+    this.setState({
+      key_words: this.props.key_words.filter(x => !ignoredTerms.includes(x))
+    });
+  }
 
   parseString(string: string) {
     if (string === '') {
       return (<Highlighter 
-        searchWords={this.props.key_words}
+        searchWords={this.state.key_words}
         autoEscape={true}
         highlightTag='b'
         findChunks={this.defaultFindChunks}
@@ -28,7 +33,7 @@ class Linkify extends Component {
     const matches = defaultMatchDecorator(string);
     if (!matches) {
       return (<Highlighter 
-        searchWords={this.props.key_words}
+        searchWords={this.state.key_words}
         autoEscape={true}
         highlightTag='b'
         findChunks={this.defaultFindChunks}
@@ -42,7 +47,7 @@ class Linkify extends Component {
       if (match.index > lastIndex) {
         const substring = string.substring(lastIndex, match.index)
         elements.push(<Highlighter 
-          searchWords={this.props.key_words}
+          searchWords={this.state.key_words}
           autoEscape={true}
           highlightTag='b'
           findChunks={this.defaultFindChunks}
@@ -61,7 +66,7 @@ class Linkify extends Component {
     if (string.length > lastIndex) {
       const substring = string.substring(lastIndex)
       elements.push(<Highlighter 
-        searchWords={this.props.key_words}
+        searchWords={this.state.key_words}
         autoEscape={true}
         highlightTag='b'
         findChunks={this.defaultFindChunks}
@@ -133,3 +138,4 @@ class Linkify extends Component {
 
 export default Linkify;
 
+export const ignoredTerms = ['the', 'an', 'a']

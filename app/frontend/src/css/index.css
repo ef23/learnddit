@@ -61,6 +61,7 @@ label{
   width: 65%;
   font-family: "Verdana";
   padding: 10px 30px;
+  text-align: center
 }
 
 .comment {
@@ -184,11 +185,15 @@ form {
   border-radius: 10px;
 }
 
+.sim-words {
+  text-align: center;
+}
+
 .svd {
   padding-left: 20px;
   padding-right: 20px;
 }
 
-.svd p {
+.svd {
   font-weight: 600;
 }

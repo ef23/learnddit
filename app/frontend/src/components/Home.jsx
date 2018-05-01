@@ -131,13 +131,14 @@ class Home extends Component {
 			      </form>
 		      </div>
 		      <div>
-		      	{data.length && !this.state.loading ? <div className="tip">Hover over the IR score to see how comments are ranked!</div> : null}
 						<div className="svd">
-							<p>Here are the top similar words to your query</p>
-							<div className="sim-words">
-									{sim_words.length ? sim_words.map((entry, i) => { return <button type="button" key={i}><b>{entry[0]}</b> ({Math.ceil(entry[1] * 100)/100 })</button>}) : null}
-							</div>
+							{ !sim_words.length ? null : 
+								<div className="sim-words"> 
+									Related terms: { sim_words.map((entry, i) => { return <button type="button" key={i}><b>{entry[0]}</b> ({Math.ceil(entry[1] * 100)/100 })</button>})}
+								</div>
+							}
 						</div>
+						{data.length && !this.state.loading ? <div className="tip">Hover over the IR score to see how comments are ranked!</div> : null}
 			      {
 			      	this.state.loading ? (<div className="loader"></div>) :
 								<div>
