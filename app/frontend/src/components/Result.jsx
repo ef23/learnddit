@@ -39,7 +39,8 @@ class Result extends Component {
 
   checkExplicit(comment) {
     for (var i = 0; i < nsfwWords.length; i++) {
-      let regex = new RegExp("(" + nsfwWords[i] + ")");
+      let regex = new RegExp("(\\b" + nsfwWords[i] + "\\b)");
+      let matches = comment.match(regex);
       if (regex.test(comment)) {
         return true;
       }
