@@ -126,15 +126,15 @@ class Home extends Component {
 											console.log("rendering results")
 										return <Result key={comment[0].id} comment={comment} key_words={this.state.tokens} style={i % 2 === 0 ? "white" : "whitesmoke"}/> })
 									)}
-									{ !data.length ? null : 
+									{ !data.length ? <p id="no_results">No Results Found</p> :
 										<div id="pagination-div">
-											<Pagination 
+											<Pagination
 															selectComponentClass={Select}
 															total={this.state.num_pages}
 															current={this.state.current_page}
 															pageSize={this.state.page_size}
 															showSizeChanger
-															pageSizeOptions={['10','25','50','100']} 
+															pageSizeOptions={['10','25','50','100']}
 															onShowSizeChange={this.onShowSizeChange}
 															onChange={this.changePage}
 															locale={localeInfo} />

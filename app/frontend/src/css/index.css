@@ -25,6 +25,10 @@ input[type=text]{
   border: none;
 }
 
+#no_results {
+  text-align: center;
+}
+
 label{
 	display: inline;
 	padding-top: 5%;
