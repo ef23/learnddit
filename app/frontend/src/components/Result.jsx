@@ -58,11 +58,13 @@ class Result extends Component {
     let irScore = this.roundNearest(breakdown[breakdown.length -1]);
     let visibilityState = this.state.showBreakdown ? "visible" : "hidden";
 
+    console.log(comment.summary.length);
+
     let display = this.explicit && !this.state.showExplicit ?
       (<div className='explicit' onClick={this.onClick.bind(this)}>
         <p><strong>Warning:</strong> this content may be NSFW. Click to reveal.</p>
-      </div>) :
-      (!this.state.expanded ?
+      </div>) : 
+      (!this.state.expanded && comment.summary.length > 5 ?
         (<div className="comment-body">
           <Linkify properties={{target: '_blank', style: {fontWeight: 'bold'}}} key_words={this.props.key_words}>
             {comment.summary}
@@ -73,7 +75,7 @@ class Result extends Component {
           <Linkify properties={{target: '_blank', style: {fontWeight: 'bold'}}} key_words={this.props.key_words}>
             {comment.body}
           </ Linkify>
-          <button onClick={() => this.setState({expanded: false})}>read less</button>
+          {comment.summary.length > 5 ? <button onClick={() => this.setState({expanded: false})}>read less</button> : null}
         </div>)
       )
 
