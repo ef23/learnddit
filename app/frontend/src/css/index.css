@@ -163,3 +163,28 @@ form {
 .comment-body {
   word-wrap: break-word;
 }
+
+/* Similar words */
+.svd .sim-words button {
+  display: inline-block;
+  background-color: #5f99cf; /*Loader blue*/
+  border: none;
+  color: white;
+  padding: 10px;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 1rem;
+  border-radius: 10px;
+}
+
+.svd {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.svd p {
+  font-weight: 600;
+}

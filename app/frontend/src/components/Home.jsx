@@ -22,8 +22,7 @@ class Home extends Component {
 			errored: false,
 			current_page: 1,
 			num_pages: 0,
-			page_size: DEFAULT_NUM,
-			tokens: []
+			page_size: DEFAULT_NUM
 		};
 		const randSuggestions = ["play the piano", "motivate myself", "sleep earlier", "be less insecure", "speak japanese"]
     this.suggestion = randSuggestions[Math.floor(Math.random()*randSuggestions.length)]
@@ -36,7 +35,9 @@ class Home extends Component {
 	}
 
 	componentWillMount(){
-		let query = this.props.location.search;
+		console.log(this.props)
+		let query = this.props.location.search
+		console.dir(this.props)
 		if (query) {
 			let parsed = queryString.parse(query)
 			if (parsed.input_index) this.setState({start_index: parsed.page})
@@ -50,7 +51,6 @@ class Home extends Component {
 	}
 
 	handleSubmit(event){
-		this.state.current_page = 1;
 		let submission = this.state.value === "" ? this.suggestion : this.state.value
 		let query = '?query=' + submission
 		if (event) event.preventDefault();
@@ -58,7 +58,7 @@ class Home extends Component {
 		  pathname: '/',
 			search: query
 		})
-		this.getRelatedComments(submission)
+		this.getRelatedComments(submission, 0)
 	}
 
 	getRelatedComments(input_query) {
@@ -68,14 +68,17 @@ class Home extends Component {
 		this.setState({loading: true})
 		var arr = input_query.split(" ")
 		var qParams = arr.map(key =>key).join('&');
+		console.dir(qParams);
+		console.log('running related comments fetch')
+		console.log(this.state.start_index);
 		axios.get('/search', {
 				params: {query: qParams, start_index: (this.state.current_page-1)*this.state.page_size, page_size: this.state.page_size }
 			})
 		.then(response => {
+			console.log(response)
 			this.setState({
 				data: response.data[0],
 				num_pages: response.data[1],
-				tokens: response.data[2],
 				hasSearched: true,
 				loading: false,
 				errored: false,
@@ -98,6 +101,16 @@ class Home extends Component {
 
 	render() {
 		let data = this.state.data.filter(comment => { return comment.body !== "[deleted]"})
+		const exampleSVDData = [{word: "instrument", score: 0.9620376924960834},
+									{word: "instruments", score: 0.951993427572645},
+									{word: "songs", score: 0.9484253413951718},
+									{word: "musical", score: 0.9206336808288373},
+									{word: "song", score: 0.913750195212453},
+									{word: "keys", score: 0.9023134830328441},
+									{word: "scales", score: 0.896956485769423},
+									{word: "chord", score: 0.8855595339680566},
+									{word: "sheet", score: 0.8837466196644155},
+									{word: "keyboard", score: 0.8738338737772975}]
     return (
     	<div>
     		<div>
@@ -118,28 +131,31 @@ class Home extends Component {
 		      </div>
 		      <div>
 		      	{data.length ? <div className="tip">Hover over the IR score to see how comments are ranked!</div> : null}
+						<div className="svd">
+							<p>Here are the top similar words to your query</p>
+							<div className="sim-words">
+									{exampleSVDData.map(entry => { return <button type="button"><b>{entry.word}</b> ({Math.ceil(entry.score * 100)/100 })</button>})}
+							</div>
+						</div>
 			      {
 			      	this.state.loading ? (<div className="loader"></div>) :
 								<div>
 									{(
 										data.slice(this.props.history.start_index, this.state.numShowing).map((comment, i) => {
-											console.log("rendering results")
-										return <Result key={comment[0].id} comment={comment} key_words={this.state.tokens} style={i % 2 === 0 ? "white" : "whitesmoke"}/> })
+										return <Result key={i} comment={comment} style={i % 2 === 0 ? "white" : "whitesmoke"}/>})
 									)}
-									{ !data.length ? null : 
-										<div id="pagination-div">
-											<Pagination 
-															selectComponentClass={Select}
-															total={this.state.num_pages}
-															current={this.state.current_page}
-															pageSize={this.state.page_size}
-															showSizeChanger
-															pageSizeOptions={['10','25','50','100']} 
-															onShowSizeChange={this.onShowSizeChange}
-															onChange={this.changePage}
-															locale={localeInfo} />
-										</div>
-									}
+									<div id="pagination-div">
+										<Pagination
+														selectComponentClass={Select}
+														total={this.state.num_pages}
+														current={this.state.current_page}
+														pageSize={this.state.page_size}
+														showSizeChanger
+														pageSizeOptions={['10','25','50','100']}
+														onShowSizeChange={this.onShowSizeChange}
+														onChange={this.changePage}
+														locale={localeInfo} />
+									</div>
 								</div>
 			      }
 		      </div>
