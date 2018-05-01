@@ -138,4 +138,4 @@ class Linkify extends Component {
 
 export default Linkify;
 
-export const ignoredTerms = ['the', 'an', 'a']
+export const ignoredTerms = ['the', 'an', 'a', 'and', 'of', 'in', 'to', 'was', 'is']
