@@ -58,7 +58,6 @@ class Result extends Component {
     let irScore = this.roundNearest(breakdown[breakdown.length -1]);
     let visibilityState = this.state.showBreakdown ? "visible" : "hidden";
 
-    console.log(comment.summary.length);
 
     let display = this.explicit && !this.state.showExplicit ?
       (<div className='explicit' onClick={this.onClick.bind(this)}>
