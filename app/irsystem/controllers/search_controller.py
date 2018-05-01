@@ -305,7 +305,9 @@ def index_search(query_tokens, orig_tokens, index, idf, doc_norms, start_index=0
   for token in svd_tokens:
     sim += closest_words(token, CLOSEST_WORDS)
 
-  print(json.dumps(sim))
+  print(query_tokens)
+  print(sim)
+  sim = [term for term in sim if term[0] not in orig_tokens]
 
   return output, len(sorted_list), tokens, json.dumps(sim)
 
