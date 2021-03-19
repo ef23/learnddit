@@ -28,7 +28,7 @@ hiredis==0.2.0
 idna==2.6
 ipaddress==1.0.19
 itsdangerous==0.24
-Jinja2==2.8
+Jinja2==2.11.3
 Mako==1.0.4
 MarkupSafe==0.23
 marshmallow==2.7.3
