@@ -85,7 +85,7 @@ smart-open==1.5.7
 SQLAlchemy==1.0.13
 subprocess32==3.2.7
 update-checker==0.16
-urllib3==1.22
+urllib3==1.26.5
 Werkzeug==0.14.1
 wrapt==1.10.11
 WTForms==2.1
