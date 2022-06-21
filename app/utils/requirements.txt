@@ -35,7 +35,7 @@ marshmallow==2.7.3
 marshmallow-sqlalchemy==0.8.1
 mysql-connector==2.1.4
 nltk==3.2.2
-numpy==1.14.2
+numpy==1.22.0
 packaging==16.8
 paramiko==2.4.1
 psycopg2==2.7.4
