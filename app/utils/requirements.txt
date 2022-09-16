@@ -29,7 +29,7 @@ idna==2.6
 ipaddress==1.0.19
 itsdangerous==0.24
 Jinja2==2.8
-Mako==1.0.4
+Mako==1.2.2
 MarkupSafe==0.23
 marshmallow==2.7.3
 marshmallow-sqlalchemy==0.8.1
